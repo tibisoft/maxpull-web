@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MaxPull — Pull-up Progression, No Fluff</title>
+<meta name="description" content="MaxPull is a pull-up training app that raises your working max automatically based on how your last set felt. No account, no paywall, no subscription.">
+<link rel="icon" href="images/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="images/app-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: dark;
+    --graphite:      #0b0c09;
+    --graphite-deep: #060704;
+    --graphite-card: #171a0f;
+    --graphite-line: rgba(242, 244, 236, 0.10);
+    --paper:         #eef0e6;
+    --paper-card:    #f8faf3;
+    --paper-line:    rgba(20, 24, 10, 0.10);
+    --ink:           #14180a;
+    --lime:          #c8ff3c;
+    --lime-strong:   #b3ea1f;
+    --lime-deep:     #5f8f00;
+    --muted-dark:    #a2ab96;
+    --muted-light:   #565c4a;
+
+    --font-display: 'Archivo', 'Inter', sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--graphite);
+    color: var(--paper);
+    font-family: var(--font-body);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  img { max-width: 100%; display: block; }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 5vw, 48px);
+  }
+
+  a { color: inherit; }
+
+  ::selection { background: var(--lime); color: var(--graphite-deep); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+  }
+
+  /* ---------- NAV ---------- */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(11, 12, 9, 0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--graphite-line);
+  }
+  nav .wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--paper);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: -0.01em;
+  }
+  .brand img { width: 30px; height: 30px; border-radius: 8px; }
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    color: var(--muted-dark);
+  }
+  .nav-links a { text-decoration: none; transition: color 0.15s ease; }
+  .nav-links a:hover { color: var(--lime); }
+  .nav-cta {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    color: var(--muted-dark);
+    border: 1px solid var(--graphite-line);
+    padding: 8px 16px;
+    border-radius: 100px;
+  }
+
+  section { position: relative; }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    padding: clamp(56px, 9vw, 108px) 0 clamp(40px, 7vw, 80px);
+    overflow: hidden;
+  }
+  .hero .wrap {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: clamp(32px, 6vw, 64px);
+    align-items: center;
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--lime);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--lime);
+    box-shadow: 0 0 0 4px rgba(200,255,60,0.16);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2.4rem, 5vw, 3.9rem);
+    line-height: 1.03;
+    letter-spacing: -0.02em;
+    margin: 0 0 22px;
+    color: #fff;
+  }
+  h1 em {
+    font-style: normal;
+    color: var(--lime);
+  }
+  .hero p.lede {
+    font-size: clamp(1.02rem, 1.6vw, 1.2rem);
+    color: var(--muted-dark);
+    max-width: 46ch;
+    margin: 0 0 34px;
+  }
+  .cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px;
+  }
+  .store-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #fff;
+    color: var(--ink);
+    padding: 11px 20px 11px 16px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-family: var(--font-body);
+    line-height: 1.15;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+  .store-badge:hover { opacity: 0.92; transform: translateY(-1px); }
+
+  .availability-note {
+    margin: -22px 0 28px;
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    color: var(--paper);
+  }
+  .store-badge:focus-visible, .nav-cta:focus-visible, .notify-link:focus-visible {
+    outline: 2px solid var(--lime);
+    outline-offset: 4px;
+  }
+
+  .store-badge svg { width: 24px; height: 24px; flex-shrink: 0; }
+  .store-badge .lines { display: flex; flex-direction: column; }
+  .store-badge .lines span:first-child { font-size: 0.62rem; letter-spacing: 0.03em; }
+  .store-badge .lines span:last-child { font-size: 1.02rem; font-weight: 600; }
+
+  .notify-link {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--paper);
+    text-decoration: none;
+    border-bottom: 1px solid var(--lime);
+    padding-bottom: 2px;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .notify-link:hover { color: var(--lime); }
+
+  .facts {
+    display: flex;
+    gap: 26px;
+    flex-wrap: wrap;
+    margin-top: 40px;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--muted-dark);
+  }
+  .facts span { white-space: nowrap; }
+  .facts strong { color: var(--paper); font-weight: 600; }
+
+  /* phone stack */
+  .phone-stack {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+  }
+  .phone {
+    position: relative;
+    width: clamp(210px, 24vw, 268px);
+    border-radius: 34px;
+    padding: 9px;
+    background: linear-gradient(160deg, #262b18, #0a0b06);
+    box-shadow: 0 30px 70px -20px rgba(0,0,0,0.65), inset 0 0 0 1px rgba(255,255,255,0.06);
+  }
+  .phone img { border-radius: 26px; }
+  .phone.back {
+    position: absolute;
+    top: 34px;
+    left: 50%;
+    transform: translateX(-88%) rotate(-9deg);
+    opacity: 0.55;
+    filter: saturate(0.9);
+    z-index: 1;
+  }
+  .phone.front {
+    position: relative;
+    z-index: 2;
+    transform: rotate(2deg);
+  }
+
+  /* ---------- SECTION HEADS ---------- */
+  .section-head {
+    max-width: 640px;
+    margin: 0 0 clamp(36px, 5vw, 56px);
+  }
+  .section-head .eyebrow { color: var(--lime); }
+  .section-head h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.7rem, 3.4vw, 2.5rem);
+    letter-spacing: -0.015em;
+    line-height: 1.12;
+    margin: 0 0 14px;
+    color: #fff;
+  }
+  .section-head p {
+    color: var(--muted-dark);
+    font-size: 1.02rem;
+    margin: 0;
+  }
+  .on-light .section-head h2 { color: var(--ink); }
+  .on-light .section-head p { color: var(--muted-light); }
+  .on-light .eyebrow { color: var(--lime-deep); }
+  .on-light .eyebrow::before { background: var(--lime-deep); box-shadow: 0 0 0 4px rgba(95,143,0,0.14); }
+
+  .on-light { background: var(--paper); color: var(--ink); }
+
+  /* ---------- HOW IT WORKS ---------- */
+  .how { padding: clamp(64px, 8vw, 104px) 0; }
+  .how-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(32px, 5vw, 56px);
+    align-items: center;
+  }
+  .flow {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--paper-line);
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--paper-card);
+  }
+  .flow-row {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 18px;
+    padding: 20px 22px;
+    align-items: center;
+  }
+  .flow-row + .flow-row { border-top: 1px solid var(--paper-line); }
+  .flow-tag {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 6px 0;
+    text-align: center;
+    border-radius: 8px;
+  }
+  .flow-tag.easy   { background: rgba(200,255,60,0.20); color: var(--lime-deep); }
+  .flow-tag.normal { background: rgba(20,24,10,0.06); color: var(--muted-light); }
+  .flow-tag.hard   { background: rgba(200,80,60,0.10); color: #a8432c; }
+  .flow-copy strong { display: block; font-size: 0.98rem; color: var(--ink); margin-bottom: 2px; }
+  .flow-copy span { font-size: 0.9rem; color: var(--muted-light); }
+
+  .recal-note {
+    margin-top: 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    font-size: 0.92rem;
+    color: var(--muted-light);
+    padding: 16px 18px;
+    background: var(--paper-card);
+    border: 1px solid var(--paper-line);
+    border-radius: 14px;
+  }
+  .recal-note svg { flex-shrink: 0; margin-top: 2px; color: var(--lime-deep); }
+
+  .proof-shots {
+    display: flex;
+    gap: clamp(-10px, 2vw, 16px);
+    justify-content: center;
+  }
+  .proof-shots .phone { width: clamp(150px, 17vw, 190px); }
+  .proof-shots .phone:first-child { transform: rotate(-4deg) translateY(10px); }
+  .proof-shots .phone:last-child { transform: rotate(4deg) translateY(-6px); margin-left: -34px; }
+
+  /* ---------- LEVELS ---------- */
+  .levels { padding: clamp(64px, 8vw, 104px) 0; background: var(--graphite-deep); }
+  .levels-grid {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: clamp(32px, 5vw, 56px);
+    align-items: center;
+  }
+  .level-ladder {
+    font-family: var(--font-mono);
+    font-size: clamp(0.82rem, 1.6vw, 0.98rem);
+    border: 1px solid var(--graphite-line);
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--graphite-card);
+  }
+  .level-ladder .lv {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 13px 20px;
+  }
+  .level-ladder .lv + .lv { border-top: 1px solid var(--graphite-line); }
+  .level-ladder .lv .n { color: var(--muted-dark); }
+  .level-ladder .lv .codes { color: var(--paper); letter-spacing: 0.02em; }
+  .level-ladder .lv .status { color: var(--lime); font-size: 0.8rem; }
+  .level-ladder .lv.current { background: rgba(200,255,60,0.08); }
+  .level-ladder .lv.locked .codes,
+  .level-ladder .lv.locked .n { color: var(--muted-dark); opacity: 0.5; }
+
+  /* ---------- BUILT FOR THE BAR / demo ---------- */
+  .built { padding: clamp(64px, 8vw, 104px) 0; }
+  .built-grid {
+    display: grid;
+    grid-template-columns: 0.95fr 1.05fr;
+    gap: clamp(40px, 6vw, 64px);
+    align-items: center;
+  }
+  .feature-list { list-style: none; margin: 0 0 0; padding: 0; }
+  .feature-list li {
+    padding: 18px 0;
+    border-top: 1px solid var(--paper-line);
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 14px;
+  }
+  .feature-list li:last-child { border-bottom: 1px solid var(--paper-line); }
+  .feature-list svg { margin-top: 3px; color: var(--lime-deep); flex-shrink: 0; }
+  .feature-list strong { display: block; color: var(--ink); font-size: 1rem; margin-bottom: 3px; }
+  .feature-list span { color: var(--muted-light); font-size: 0.94rem; }
+
+  .tap-demo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    background: var(--ink);
+    border-radius: 28px;
+    padding: clamp(30px, 5vw, 46px) 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .tap-demo .label {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted-dark);
+  }
+  .tap-circle-wrap { position: relative; width: 200px; height: 200px; }
+  .pulse-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid var(--lime);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .pulse-ring.animate { animation: pulse-out 0.6s ease-out; }
+  @keyframes pulse-out {
+    0% { opacity: 0.6; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.35); }
+  }
+  .tap-circle {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 28%, #e6ff9e, var(--lime) 65%);
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 20px 40px -12px rgba(200,255,60,0.35);
+    transition: transform 0.08s ease;
+    font-family: var(--font-display);
+  }
+  .tap-circle:active { transform: scale(0.94); }
+  .tap-circle .count {
+    font-size: 4rem;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .tap-circle .of {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: rgba(20,24,10,0.6);
+    margin-top: 4px;
+  }
+  .tap-controls {
+    display: flex;
+    gap: 22px;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+  }
+  .tap-controls button {
+    background: none;
+    border: none;
+    color: var(--muted-dark);
+    font-family: inherit;
+    font-size: inherit;
+    cursor: pointer;
+    padding: 6px 4px;
+    border-bottom: 1px solid transparent;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .tap-controls button:hover { color: var(--lime); border-color: var(--lime); }
+  .tap-hint {
+    font-size: 0.82rem;
+    color: var(--muted-dark);
+    text-align: center;
+    max-width: 26ch;
+  }
+  .tap-hint strong { color: var(--paper); }
+
+  /* ---------- HONEST / NO ACCOUNT ---------- */
+  .honest { padding: clamp(64px, 8vw, 104px) 0; background: var(--graphite-deep); }
+  .honest-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: clamp(32px, 6vw, 64px);
+    align-items: center;
+  }
+  .settings-list {
+    border: 1px solid var(--graphite-line);
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--graphite-card);
+  }
+  .settings-list .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 17px 22px;
+    font-size: 0.98rem;
+  }
+  .settings-list .row + .row { border-top: 1px solid var(--graphite-line); }
+  .settings-list .row .no {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--lime);
+    border: 1px solid rgba(200,255,60,0.35);
+    padding: 3px 10px;
+    border-radius: 100px;
+  }
+
+  /* ---------- CLOSING CTA ---------- */
+  .closing {
+    padding: clamp(72px, 10vw, 130px) 0 clamp(56px, 8vw, 88px);
+    text-align: center;
+  }
+  .closing h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2rem, 4.6vw, 3.2rem);
+    letter-spacing: -0.02em;
+    color: #fff;
+    margin: 0 0 18px;
+    line-height: 1.08;
+  }
+  .closing p {
+    color: var(--muted-dark);
+    max-width: 48ch;
+    margin: 0 auto 36px;
+    font-size: 1.05rem;
+  }
+  .closing .cta-row { justify-content: center; }
+
+  footer {
+    border-top: 1px solid var(--graphite-line);
+    padding: 28px 0 40px;
+  }
+  footer .wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--muted-dark);
+  }
+  footer nav.links { display: flex; gap: 22px; }
+  footer a { text-decoration: none; }
+  footer a:hover { color: var(--lime); }
+
+  /* reveal on scroll */
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 880px) {
+    .hero .wrap,
+    .how-grid,
+    .levels-grid,
+    .built-grid,
+    .honest-grid {
+      grid-template-columns: 1fr;
+    }
+    .hero .wrap { text-align: left; }
+    .phone-stack { margin-top: 12px; }
+    .phone.back { transform: translateX(-72%) rotate(-8deg); }
+    .proof-shots .phone:last-child { margin-left: -20px; }
+    .levels-grid { direction: ltr; }
+    .levels-grid > *:first-child { order: 2; }
+  }
+
+  @media (max-width: 620px) {
+    .nav-right { gap: 12px; }
+    .nav-links { gap: 11px; font-size: 0.68rem; }
+    .nav-cta { padding: 7px 11px; font-size: 0.68rem; }
+  }
+
+  @media (max-width: 480px) {
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+  <nav>
+    <div class="wrap">
+      <a class="brand" href="./">
+        <img src="images/app-icon.webp" alt="">
+        MaxPull
+      </a>
+      <div class="nav-right">
+        <div class="nav-links" aria-label="Site links">
+          <a href="support.html">Support</a>
+          <a href="privacy.html">Privacy</a>
+        </div>
+        <!-- TODO: replace with the live App Store link once MaxPull has an App Store ID -->
+        <a class="nav-cta" href="#">Coming soon on iOS</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Pull-up progression</p>
+        <h1>Your working max, <em>going up.</em> Automatically.</h1>
+        <p class="lede">No account. No paywall. No subscription. Open the app, see today's plan, work through your sets — MaxPull adjusts your next plan based on how the last one actually felt.</p>
+        <p class="availability-note">Launching soon on the App Store for iPhone.</p>
+        <div class="cta-row">
+          <!-- TODO: replace href="#" with the real App Store URL once MaxPull is live -->
+          <a class="store-badge" href="#" aria-label="MaxPull on the App Store">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.05 12.536c-.02-2.06 1.68-3.05 1.76-3.1-.96-1.4-2.45-1.59-2.98-1.61-1.27-.13-2.48.75-3.13.75-.65 0-1.65-.73-2.72-.71-1.4.02-2.7.81-3.42 2.06-1.46 2.53-.37 6.27 1.05 8.32.69 1 1.51 2.13 2.59 2.09 1.04-.04 1.43-.67 2.69-.67s1.61.67 2.71.65c1.12-.02 1.83-1.02 2.51-2.03.53-.75.94-1.55 1.19-2.4-.03-.01-2.27-.87-2.29-3.35zM15.05 6.34c.57-.69.96-1.65.85-2.61-.82.03-1.82.55-2.41 1.23-.53.61-.99 1.6-.87 2.53.91.07 1.85-.46 2.43-1.15z"/></svg>
+            <span class="lines"><span>Coming soon to the</span><span>App Store</span></span>
+          </a>
+          <a class="notify-link" href="mailto:support@tibisoft.nl?subject=Notify%20me%20about%20MaxPull">Get notified at launch →</a>
+        </div>
+        <div class="facts">
+          <span><strong>50</strong> levels</span>
+          <span><strong>0</strong> accounts required</span>
+          <span><strong>1</strong> question per session</span>
+        </div>
+      </div>
+      <div class="phone-stack reveal">
+        <div class="phone back"><img src="images/home-dark.webp" alt="MaxPull home screen in dark mode" loading="lazy"></div>
+        <div class="phone front"><img src="images/home-light.webp" alt="MaxPull home screen in light mode, showing today's target, weekly reps, streak and level" loading="lazy"></div>
+      </div>
+    </div>
+  </header>
+
+  <section class="how on-light">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow">How it works</p>
+        <h2>One question decides tomorrow's plan.</h2>
+        <p>Every session ends with Easy, Normal, or Hard. That single answer is the entire algorithm — no manuals, no macros to log.</p>
+      </div>
+      <div class="how-grid">
+        <div class="reveal">
+          <div class="flow">
+            <div class="flow-row">
+              <span class="flow-tag easy">EASY</span>
+              <div class="flow-copy"><strong>Working max climbs</strong><span>Nail the set and next time's target moves up.</span></div>
+            </div>
+            <div class="flow-row">
+              <span class="flow-tag normal">NORMAL</span>
+              <div class="flow-copy"><strong>Climbs every other time</strong><span>Two solid Normals in a row nudge the max up; one alone just holds the line.</span></div>
+            </div>
+            <div class="flow-row">
+              <span class="flow-tag hard">HARD, TWICE</span>
+              <div class="flow-copy"><strong>It backs off</strong><span>Struggle two sessions running and the plan eases up.</span></div>
+            </div>
+          </div>
+          <div class="recal-note">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7M21 3v6h-6"/></svg>
+            <span>Every 18 days, an AMRAP retest checks your plan against reality — so the number driving your training never drifts too far from the truth.</span>
+          </div>
+        </div>
+        <div class="proof-shots reveal">
+          <div class="phone"><img src="images/progress-dark.webp" alt="MaxPull progress screen showing streaks, total reps, a 14-day chart and the retest AMRAP prompt" loading="lazy"></div>
+          <div class="phone"><img src="images/amraptest-dark.webp" alt="MaxPull AMRAP retest screen counting an all-out set" loading="lazy"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="levels">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow">Fifty levels</p>
+        <h2>Structured, not guessed.</h2>
+        <p>Your plan is built from your working max and organized into 50 levels, each its own five-set structure. You level up the moment you're ready — no button, no gate.</p>
+      </div>
+      <div class="levels-grid">
+        <div class="reveal">
+          <div class="level-ladder">
+            <div class="lv"><span class="n">01</span><span class="codes">2·2·1·1·2</span><span class="status">✓ done</span></div>
+            <div class="lv"><span class="n">02</span><span class="codes">2·2·1·1·2</span><span class="status">✓ done</span></div>
+            <div class="lv current"><span class="n">03</span><span class="codes">3·2·2·2·3</span><span class="status">● current</span></div>
+            <div class="lv locked"><span class="n">04</span><span class="codes">3·2·2·2·3</span><span class="status">unlocks at 3</span></div>
+            <div class="lv locked"><span class="n">05</span><span class="codes">4·3·2·2·3</span><span class="status">unlocks at 4</span></div>
+          </div>
+        </div>
+        <div class="phone-stack reveal">
+          <div class="phone front" style="margin: 0 auto;"><img src="images/levels-dark.webp" alt="MaxPull levels list showing completed, current and locked levels with their rep structures" loading="lazy"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="built on-light">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow">Built for the bar</p>
+        <h2>Made for mid-set, not the menu.</h2>
+      </div>
+      <div class="built-grid">
+        <ul class="feature-list reveal">
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+            <div><strong>Log each set right off the bar</strong><span>Reps are logged after the set, not tapped in live — on the bar, both hands are busy. Drop off, tap in the number, move on.</span></div>
+          </li>
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-1"/></svg>
+            <div><strong>Undo the last set</strong><span>Logged the wrong number? One tap fixes it, no restarting the workout.</span></div>
+          </li>
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+            <div><strong>No forced stop</strong><span>The target's a floor, not a ceiling. Log more if you've got it in the tank.</span></div>
+          </li>
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <div><strong>Rest with a chime</strong><span>A 75-second countdown between sets. Ready early? Skip it.</span></div>
+          </li>
+        </ul>
+        <div class="tap-demo reveal">
+          <span class="label">Try the AMRAP test</span>
+          <div class="tap-circle-wrap">
+            <div class="pulse-ring" id="pulseRing"></div>
+            <button class="tap-circle" id="tapCircle" aria-label="Tap to count a rep">
+              <span class="count" id="repCount">0</span>
+              <span class="of">reps</span>
+            </button>
+          </div>
+          <div class="tap-controls">
+            <button id="undoBtn" type="button">Undo last</button>
+            <button id="resetBtn" type="button">Reset</button>
+          </div>
+          <p class="tap-hint" id="tapHint">This is exactly how the real test works. <strong>Tap until you can't do another.</strong></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="honest">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow">What's missing, on purpose</p>
+        <h2>No account. No subscription. No catch.</h2>
+        <p>Every core feature is available from the first launch, for everyone, for free — supported by ads, not your data. Your workout history stays on your device.</p>
+      </div>
+      <div class="honest-grid">
+        <div class="settings-list reveal">
+          <div class="row"><span>Account or login required</span><span class="no">No</span></div>
+          <div class="row"><span>In-app purchases</span><span class="no">No</span></div>
+          <div class="row"><span>Subscription</span><span class="no">No</span></div>
+          <div class="row"><span>Paywalled history</span><span class="no">No</span></div>
+          <div class="row"><span>Your workout history leaves your device</span><span class="no">No</span></div>
+        </div>
+        <div class="phone-stack reveal">
+          <div class="phone front" style="margin: 0 auto;"><img src="images/settings-dark.webp" alt="MaxPull settings screen showing sound and haptics toggles, support links and no account section" loading="lazy"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing">
+    <div class="wrap">
+      <h2 class="reveal">One screen away<br>from a workout.</h2>
+      <p class="reveal">Open the app, see the plan, start. That's the whole product.</p>
+      <div class="cta-row reveal">
+        <!-- TODO: replace href="#" with the real App Store URL once MaxPull is live -->
+        <a class="store-badge" href="#" aria-label="MaxPull on the App Store">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.05 12.536c-.02-2.06 1.68-3.05 1.76-3.1-.96-1.4-2.45-1.59-2.98-1.61-1.27-.13-2.48.75-3.13.75-.65 0-1.65-.73-2.72-.71-1.4.02-2.7.81-3.42 2.06-1.46 2.53-.37 6.27 1.05 8.32.69 1 1.51 2.13 2.59 2.09 1.04-.04 1.43-.67 2.69-.67s1.61.67 2.71.65c1.12-.02 1.83-1.02 2.51-2.03.53-.75.94-1.55 1.19-2.4-.03-.01-2.27-.87-2.29-3.35zM15.05 6.34c.57-.69.96-1.65.85-2.61-.82.03-1.82.55-2.41 1.23-.53.61-.99 1.6-.87 2.53.91.07 1.85-.46 2.43-1.15z"/></svg>
+          <span class="lines"><span>Coming soon to the</span><span>App Store</span></span>
+        </a>
+        <a class="notify-link" href="mailto:support@tibisoft.nl?subject=Notify%20me%20about%20MaxPull">Get notified at launch →</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <span>&copy; 2026 MaxPull. All rights reserved.</span>
+      <nav class="links">
+        <a href="support.html">Support</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="mailto:support@tibisoft.nl">Contact</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var count = 0;
+      var history = [];
+      var countEl = document.getElementById('repCount');
+      var circle = document.getElementById('tapCircle');
+      var ring = document.getElementById('pulseRing');
+      var hint = document.getElementById('tapHint');
+      var undoBtn = document.getElementById('undoBtn');
+      var resetBtn = document.getElementById('resetBtn');
+
+      function render() {
+        countEl.textContent = count;
+        if (count === 0) {
+          hint.innerHTML = 'This is exactly how the real test works. <strong>Tap until you can\'t do another.</strong>';
+        } else {
+          hint.innerHTML = '<strong>' + count + '</strong> logged. Still going?';
+        }
+      }
+
+      function pulse() {
+        ring.classList.remove('animate');
+        void ring.offsetWidth;
+        ring.classList.add('animate');
+      }
+
+      circle.addEventListener('click', function () {
+        count += 1;
+        history.push(1);
+        pulse();
+        render();
+        if (navigator.vibrate) { try { navigator.vibrate(8); } catch (e) {} }
+      });
+
+      undoBtn.addEventListener('click', function () {
+        if (history.length === 0) return;
+        history.pop();
+        count = Math.max(0, count - 1);
+        render();
+      });
+
+      resetBtn.addEventListener('click', function () {
+        count = 0;
+        history = [];
+        render();
+      });
+
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('in');
+              io.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+      } else {
+        document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
+      }
+    })();
+  </script>
+
+</body>
+</html>
